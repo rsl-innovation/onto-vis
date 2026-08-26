@@ -1,0 +1,342 @@
+{
+  "name": "turtle-syntax-extension",
+  "displayName": "Turtle & RDF — Ontology Language Server + Graph Preview",
+  "description": "Language server and live ontology graph previewer for Turtle, RDF/XML and OWL files.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publisher": "aradhya2211",
+  "author": {
+    "name": "aradhya2211"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aradhya2211/turtle-syntax-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aradhya2211/turtle-syntax-extension/issues"
+  },
+  "homepage": "https://github.com/aradhya2211/turtle-syntax-extension#readme",
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization",
+    "Linters"
+  ],
+  "keywords": [
+    "turtle",
+    "ttl",
+    "rdf",
+    "owl",
+    "ontology",
+    "semantic web",
+    "linked data",
+    "sparql"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:turtle",
+    "onLanguage:ntriples",
+    "onLanguage:nquads",
+    "onLanguage:trig",
+    "onLanguage:n3",
+    "onLanguage:rdfxml"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "turtle",
+        "aliases": [
+          "Turtle",
+          "turtle"
+        ],
+        "extensions": [
+          ".ttl",
+          ".turtle"
+        ],
+        "configuration": "./language-configuration/turtle.json"
+      },
+      {
+        "id": "ntriples",
+        "aliases": [
+          "N-Triples"
+        ],
+        "extensions": [
+          ".nt"
+        ],
+        "configuration": "./language-configuration/turtle.json"
+      },
+      {
+        "id": "nquads",
+        "aliases": [
+          "N-Quads"
+        ],
+        "extensions": [
+          ".nq"
+        ],
+        "configuration": "./language-configuration/turtle.json"
+      },
+      {
+        "id": "trig",
+        "aliases": [
+          "TriG"
+        ],
+        "extensions": [
+          ".trig"
+        ],
+        "configuration": "./language-configuration/turtle.json"
+      },
+      {
+        "id": "n3",
+        "aliases": [
+          "Notation3",
+          "N3"
+        ],
+        "extensions": [
+          ".n3"
+        ],
+        "configuration": "./language-configuration/turtle.json"
+      },
+      {
+        "id": "rdfxml",
+        "aliases": [
+          "RDF/XML",
+          "OWL"
+        ],
+        "extensions": [
+          ".rdf",
+          ".rdfs",
+          ".owl"
+        ],
+        "firstLine": "^\\s*(<\\?xml|<rdf:RDF|<!DOCTYPE\\s+rdf:RDF)",
+        "configuration": "./language-configuration/rdfxml.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "turtle",
+        "scopeName": "source.turtle",
+        "path": "./syntaxes/turtle.tmLanguage.json"
+      },
+      {
+        "language": "ntriples",
+        "scopeName": "source.turtle",
+        "path": "./syntaxes/turtle.tmLanguage.json"
+      },
+      {
+        "language": "nquads",
+        "scopeName": "source.turtle",
+        "path": "./syntaxes/turtle.tmLanguage.json"
+      },
+      {
+        "language": "trig",
+        "scopeName": "source.turtle",
+        "path": "./syntaxes/turtle.tmLanguage.json"
+      },
+      {
+        "language": "n3",
+        "scopeName": "source.turtle",
+        "path": "./syntaxes/turtle.tmLanguage.json"
+      },
+      {
+        "language": "rdfxml",
+        "scopeName": "text.xml.rdf",
+        "path": "./syntaxes/rdfxml.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "rdf.showPreview",
+        "title": "Show Ontology Graph Preview",
+        "category": "RDF",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "rdf.showPreviewToSide",
+        "title": "Open Ontology Graph Preview to the Side",
+        "category": "RDF",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "rdf.reindexWorkspace",
+        "title": "Re-index Workspace",
+        "category": "RDF"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "rdf.showPreviewToSide",
+          "when": "resourceLangId =~ /^(turtle|ntriples|nquads|trig|n3|rdfxml)$/",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "rdf.showPreview",
+          "when": "resourceLangId =~ /^(turtle|ntriples|nquads|trig|n3|rdfxml)$/"
+        },
+        {
+          "command": "rdf.showPreviewToSide",
+          "when": "resourceLangId =~ /^(turtle|ntriples|nquads|trig|n3|rdfxml)$/"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "RDF / Turtle",
+      "properties": {
+        "rdf.workspace.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Index every RDF file in the workspace so go-to-definition, find-references and rename work across files and formats."
+        },
+        "rdf.workspace.maxFiles": {
+          "type": "number",
+          "default": 2000,
+          "description": "Stop indexing after this many RDF files."
+        },
+        "rdf.workspace.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.git/**"
+          ],
+          "description": "Glob patterns excluded from the workspace index."
+        },
+        "rdf.preview.maxNodes": {
+          "type": "number",
+          "default": 2000,
+          "description": "Above this node count the preview renders only the highest-degree subgraph and shows a truncation banner."
+        },
+        "rdf.preview.defaultView": {
+          "type": "string",
+          "enum": [
+            "ontology",
+            "triples"
+          ],
+          "default": "ontology",
+          "description": "Which view the graph preview opens in."
+        },
+        "rdf.preview.showIndividuals": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show individuals (instances) and their rdf:type edges in the ontology view."
+        },
+        "rdf.format.indent": {
+          "type": "number",
+          "default": 4,
+          "description": "Spaces used to indent predicate-object lists when formatting Turtle."
+        },
+        "rdf.format.alignPredicates": {
+          "type": "boolean",
+          "default": true,
+          "description": "Align predicate-object lists in a column when formatting Turtle."
+        },
+        "rdf.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Trace the communication between VS Code and the RDF language server."
+        }
+      }
+    },
+    "semanticTokenTypes": [
+      {
+        "id": "ontologyClass",
+        "superType": "class",
+        "description": "An owl:Class or rdfs:Class"
+      },
+      {
+        "id": "objectProperty",
+        "superType": "property",
+        "description": "An owl:ObjectProperty"
+      },
+      {
+        "id": "datatypeProperty",
+        "superType": "property",
+        "description": "An owl:DatatypeProperty"
+      },
+      {
+        "id": "annotationProperty",
+        "superType": "property",
+        "description": "An owl:AnnotationProperty"
+      },
+      {
+        "id": "individual",
+        "superType": "variable",
+        "description": "A named individual"
+      },
+      {
+        "id": "prefixName",
+        "superType": "namespace",
+        "description": "A namespace prefix"
+      }
+    ],
+    "semanticTokenScopes": [
+      {
+        "language": "turtle",
+        "scopes": {
+          "ontologyClass": [
+            "entity.name.type.class.turtle"
+          ],
+          "objectProperty": [
+            "entity.name.function.turtle"
+          ],
+          "datatypeProperty": [
+            "variable.other.property.turtle"
+          ],
+          "annotationProperty": [
+            "comment.annotation.turtle"
+          ],
+          "individual": [
+            "variable.other.constant.turtle"
+          ],
+          "prefixName": [
+            "entity.name.namespace.turtle"
+          ]
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.mjs --production",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vscode-test",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "n3": "^2.6.0",
+    "rdfxml-streaming-parser": "^3.3.0",
+    "saxes": "^6.0.0",
+    "vscode-languageclient": "^10.1.0",
+    "vscode-languageserver": "^10.1.0",
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "cytoscape": "^3.34.2",
+    "cytoscape-dagre": "^4.0.0",
+    "cytoscape-fcose": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.91.0",
+    "@types/n3": "^1.26.0",
+    "@types/cytoscape": "^3.21.9",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.11"
+  }
+}
