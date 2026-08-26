@@ -1,0 +1,49 @@
+# An example ontology exercising the features this extension provides.
+@prefix ex:      <http://example.org/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://example.org/> a owl:Ontology ;
+    dcterms:title "Example Organisation Ontology" ;
+    owl:versionInfo "1.0.0" .
+
+ex:Agent a owl:Class ;
+    rdfs:label "Agent"@en ;
+    rdfs:comment "Something that can act: a person or an organisation." .
+
+ex:Person a owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A human being." ;
+    rdfs:subClassOf ex:Agent ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty ex:worksFor ;
+        owl:allValuesFrom ex:Organization ] .
+
+ex:Organization a owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:subClassOf ex:Agent ;
+    owl:disjointWith ex:Person .
+
+ex:worksFor a owl:ObjectProperty ;
+    rdfs:label "works for"@en ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization .
+
+ex:name a owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:domain ex:Agent ;
+    rdfs:range xsd:string .
+
+ex:foundedIn a owl:DatatypeProperty ;
+    rdfs:domain ex:Organization ;
+    rdfs:range xsd:date .
+
+ex:alice a ex:Person ;
+    ex:name "Alice" ;
+    ex:worksFor ex:acme .
+
+ex:acme a ex:Organization ;
+    ex:name "ACME Corporation" ;
+    ex:foundedIn "1998-04-12"^^xsd:date .

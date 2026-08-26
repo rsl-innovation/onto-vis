@@ -1,0 +1,15 @@
+# Several independent errors, to show that recovery reports them all at once
+# rather than stopping at the first.
+@prefix ex: <http://example.org/> .
+
+ex:Good a ex:Thing .
+
+ex:First !!! bad .
+
+ex:Second ex:p ex:o .
+
+ex:Third ex:q @@@ .
+
+ex:Fourth a ex:Thing .
+
+undeclared:Term a ex:Thing .

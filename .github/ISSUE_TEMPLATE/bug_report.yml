@@ -1,0 +1,41 @@
+name: Bug report
+description: Something is not working as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample file
+      description: >
+        The smallest RDF snippet that reproduces the problem. This is by far the
+        most useful thing you can include.
+      render: turtle
+    validations:
+      required: true
+
+  - type: input
+    id: format
+    attributes:
+      label: File type
+      placeholder: .ttl / .owl / .rdf / .nt
+
+  - type: input
+    id: versions
+    attributes:
+      label: Extension and VS Code versions
+      placeholder: extension 0.1.0, VS Code 1.91.0
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Language server output
+      description: From the Output panel, "RDF Language Server" channel.
+      render: shell

@@ -57,7 +57,8 @@ let cy: cytoscape.Core | undefined;
 let state: PanelState = { uri: '', view: 'ontology', scope: 'file', showIndividuals: false };
 let lastView: string | undefined;
 let lastScope: string | undefined;
-let hiddenKinds = new Set<string>();
+const hiddenKinds = new Set<string>();
+let currentModel: GraphModel | undefined;
 
 /**
  * Concrete colours read from VS Code's theme variables.
@@ -258,7 +259,8 @@ function render(model: GraphModel): void {
   }
 
   const nextIds = new Set([...visibleIds, ...visibleEdges.map((e) => e.id)]);
-  const existingIds = new Set(core.elements().map((el) => el.id()));
+  const hadElements = core.elements().length > 0;
+  const added: string[] = [];
 
   core.batch(() => {
     // Remove what is gone.
@@ -266,7 +268,6 @@ function render(model: GraphModel): void {
       if (!nextIds.has(el.id())) el.remove();
     });
 
-    const added: string[] = [];
     for (const node of visibleNodes) {
       const data = { ...node, displayLabel: displayLabel(node) };
       const existing = core.getElementById(node.id);
@@ -282,7 +283,7 @@ function render(model: GraphModel): void {
     }
 
     // Seed new nodes near their neighbours so they do not appear at the origin.
-    if (!viewChanged && existingIds.size > 0) {
+    if (!viewChanged && hadElements) {
       for (const id of added) {
         const node = core.getElementById(id);
         const placed = node
@@ -306,9 +307,10 @@ function render(model: GraphModel): void {
   });
 
   const total = core.nodes().length;
-  const newRatio = total === 0 ? 1 : (total - existingIds.size) / total;
-  // Re-lay out only on a structural change, not on incremental edits.
-  if (viewChanged || existingIds.size === 0 || newRatio > 0.3) {
+  const newRatio = total === 0 ? 0 : added.length / total;
+  // Re-lay out only on a structural change, never on an incremental edit -
+  // otherwise the graph jumps around while the user is still typing.
+  if (viewChanged || !hadElements || newRatio > 0.3) {
     core.layout(layoutFor(model.view)).run();
   }
 
@@ -388,14 +390,12 @@ function renderToolbar(model: GraphModel): void {
     const filters = document.createElement('div');
     filters.className = 'group';
     filters.append(
-      button('Literals', 'Show literal values', !hiddenKinds.has('literal'), () => {
-        toggleKind('literal');
-        vscode.postMessage({ type: 'refresh' });
-      }),
-      button('rdf:type', 'Show rdf:type edges', !hiddenKinds.has('type'), () => {
-        toggleKind('type');
-        vscode.postMessage({ type: 'refresh' });
-      })
+      button('Literals', 'Show literal values', !hiddenKinds.has('literal'), () =>
+        toggleKind('literal')
+      ),
+      button('rdf:type', 'Show rdf:type edges', !hiddenKinds.has('type'), () =>
+        toggleKind('type')
+      )
     );
     toolbarEl.append(filters);
   }
@@ -419,8 +419,6 @@ function renderToolbar(model: GraphModel): void {
   );
   toolbarEl.append(actions);
 }
-
-let currentModel: GraphModel | undefined;
 
 function toggleKind(kind: string): void {
   if (hiddenKinds.has(kind)) hiddenKinds.delete(kind);

@@ -362,6 +362,7 @@ async function loadReferencedDocuments(uri: string, position: { line: number; ch
 }
 
 documents.onDidSave((event) => diskCache.delete(event.document.uri));
+documents.onDidClose((event) => diskCache.delete(event.document.uri));
 
 documents.listen(connection);
 connection.listen();
