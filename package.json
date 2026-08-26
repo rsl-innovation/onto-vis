@@ -317,21 +317,22 @@
     "package": "vsce package"
   },
   "dependencies": {
+    "cytoscape": "^3.34.2",
+    "cytoscape-dagre": "^4.0.0",
+    "cytoscape-fcose": "^2.2.0",
     "n3": "^2.6.0",
     "rdfxml-streaming-parser": "^3.3.0",
     "saxes": "^6.0.0",
     "vscode-languageclient": "^10.1.0",
     "vscode-languageserver": "^10.1.0",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "cytoscape": "^3.34.2",
-    "cytoscape-dagre": "^4.0.0",
-    "cytoscape-fcose": "^2.2.0"
+    "vscode-uri": "^3.2.0"
   },
   "devDependencies": {
+    "@types/cytoscape": "^3.21.9",
+    "@types/n3": "^1.26.0",
     "@types/node": "^22.0.0",
     "@types/vscode": "~1.91.0",
-    "@types/n3": "^1.26.0",
-    "@types/cytoscape": "^3.21.9",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
