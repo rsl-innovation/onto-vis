@@ -22,5 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bidirectional selection sync with the editor, search, filters, workspace scope
   and PNG export.
 - Content sniffing for `.owl` files, which may contain either RDF/XML or Turtle.
+- A worked retail/e-commerce example ontology under `test/fixtures/retail/`,
+  spanning Turtle, RDF/XML and instance data.
 
 [Unreleased]: https://github.com/aradhya2211/turtle-syntax-extension/commits/main

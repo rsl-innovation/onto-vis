@@ -1,0 +1,118 @@
+# Sample data for the retail ontology.
+#
+# Turn on "Individuals" in the graph preview, or switch to the Triples view,
+# to see these alongside the schema.
+
+@prefix retail: <http://example.org/retail#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Catalogue -------------------------------------------------------------
+
+retail:cat-electronics a retail:Category ;
+    retail:categoryName "Electronics" .
+
+retail:cat-headphones a retail:Category ;
+    retail:categoryName "Headphones" ;
+    retail:broaderCategory retail:cat-electronics .
+
+retail:brand-auricle a retail:Brand ;
+    retail:brandName "Auricle" .
+
+retail:vendor-soundwave a retail:Vendor ;
+    retail:partyName "Soundwave Audio Ltd" ;
+    retail:email "sales@soundwave.example" ;
+    retail:vendorId "V-10024" ;
+    retail:taxId "GB123456789" ;
+    retail:vendorRating 4.6 .
+
+retail:prod-studio40 a retail:PhysicalProduct ;
+    retail:title "Studio 40 Over-Ear Headphones" ;
+    retail:description "Closed-back monitoring headphones with a detachable cable." ;
+    retail:inCategory retail:cat-headphones ;
+    retail:soldBy retail:vendor-soundwave ;
+    retail:underBrand retail:brand-auricle .
+
+retail:sku-studio40-black a retail:SKU ;
+    retail:skuCode "AUR-S40-BLK" ;
+    retail:barcode "5012345678900" ;
+    retail:listPrice 149.00 ;
+    retail:currency "GBP" ;
+    retail:weightKg 0.32 ;
+    retail:variantOf retail:prod-studio40 .
+
+retail:sku-studio40-silver a retail:SKU ;
+    retail:skuCode "AUR-S40-SLV" ;
+    retail:barcode "5012345678917" ;
+    retail:listPrice 149.00 ;
+    retail:currency "GBP" ;
+    retail:weightKg 0.32 ;
+    retail:variantOf retail:prod-studio40 .
+
+# --- Fulfilment ------------------------------------------------------------
+
+retail:wh-manchester a retail:Warehouse ;
+    retail:warehouseCode "WH-MAN-01" ;
+    retail:warehouseAddress retail:addr-warehouse .
+
+retail:addr-warehouse a retail:Address ;
+    retail:street "12 Trafford Way" ;
+    retail:city "Manchester" ;
+    retail:postalCode "M17 8AA" ;
+    retail:countryCode "GB" .
+
+retail:inv-studio40-black a retail:InventoryItem ;
+    retail:stockOf retail:sku-studio40-black ;
+    retail:storedAt retail:wh-manchester ;
+    retail:quantityOnHand 142 .
+
+# --- Customer and order ----------------------------------------------------
+
+retail:cust-1001 a retail:Customer ;
+    retail:partyName "Priya Raman" ;
+    retail:email "priya@example.com" ;
+    retail:customerId "C-1001" ;
+    retail:loyaltyPoints 320 ;
+    retail:registeredOn "2024-11-03"^^xsd:date ;
+    retail:hasAddress retail:addr-home , retail:addr-billing .
+
+retail:addr-home a retail:ShippingAddress ;
+    retail:street "48 Cavendish Road" ;
+    retail:city "Leeds" ;
+    retail:postalCode "LS2 9JT" ;
+    retail:countryCode "GB" .
+
+retail:addr-billing a retail:BillingAddress ;
+    retail:street "48 Cavendish Road" ;
+    retail:city "Leeds" ;
+    retail:postalCode "LS2 9JT" ;
+    retail:countryCode "GB" .
+
+retail:order-88120 a retail:Order ;
+    retail:orderNumber "ORD-88120" ;
+    retail:placedAt "2026-08-14T09:21:00Z"^^xsd:dateTime ;
+    retail:orderStatus "shipped" ;
+    retail:totalAmount 298.00 ;
+    retail:orderedBy retail:cust-1001 ;
+    retail:shippedTo retail:addr-home ;
+    retail:billedTo retail:addr-billing ;
+    retail:hasOrderLine retail:line-88120-1 , retail:line-88120-2 ;
+    retail:fulfilledBy retail:shp-77341 .
+
+retail:line-88120-1 a retail:OrderLine ;
+    retail:lineItem retail:sku-studio40-black ;
+    retail:quantity 1 ;
+    retail:unitPrice 149.00 .
+
+retail:line-88120-2 a retail:OrderLine ;
+    retail:lineItem retail:sku-studio40-silver ;
+    retail:quantity 1 ;
+    retail:unitPrice 149.00 .
+
+retail:shp-77341 a retail:Shipment ;
+    retail:trackingNumber "TN99001122GB" ;
+    retail:carrier "Northern Parcels" .
+
+retail:rev-5501 a retail:Review ;
+    retail:ratingValue 5 ;
+    retail:reviewBody "Excellent isolation and a comfortable fit for long sessions." ;
+    retail:reviewOf retail:prod-studio40 .

@@ -22,15 +22,19 @@ Two problems it solves:
 Run **RDF: Show Ontology Graph Preview** (or the editor-title icon) to open the
 graph beside your file. It updates as you type.
 
-- **Ontology view** — classes as nodes, `rdfs:subClassOf` as a top-down hierarchy,
-  object properties as `domain → range` edges, and datatype properties folded into
-  the class node as UML-style attribute rows. `owl:Restriction` renders as an
-  annotated edge (`hasParent only Person`) rather than an anonymous blob.
+- **Ontology view** — every class is a UML-style card: a header band with the class
+  name, then its datatype properties as aligned attribute rows with their types.
+  `rdfs:subClassOf` is drawn as a hollow-triangle generalisation and pulls each
+  family into a cluster, so the hierarchy reads first and the property web second.
+  `owl:Restriction` becomes an annotated edge (`hasParent only Person`) or an
+  italic constraint row, rather than an anonymous blob.
 - **Triples view** — every subject, predicate and object, with literals and blank
   nodes as distinctly shaped leaves.
 - **Click a node** to jump to its definition — in whichever file and format defines
   it. **Move the cursor** in the editor and the matching node highlights.
-- Search, filters, workspace-wide scope, and PNG export.
+- Search, filters, workspace-wide scope, zoom controls, a legend, and PNG export.
+- Selecting a class opens a panel with its attributes, its place in the hierarchy
+  and its relationships — each one clickable to walk the graph.
 
 ### Language server
 
@@ -103,8 +107,11 @@ npm run typecheck
 npm run package   # build a .vsix
 ```
 
-Open `test/fixtures/turtle/ontology.ttl` in the development host to try it, and
-`test/fixtures/turtle/broken.ttl` to see error recovery.
+Open `test/fixtures/retail/` in the development host to try it on something
+realistic — a small e-commerce ontology of customers, vendors, products, SKUs,
+addresses and orders, split across Turtle (`retail.ttl`), RDF/XML (`vendors.owl`)
+and sample data (`instances.ttl`) so cross-format navigation is exercised too.
+`test/fixtures/turtle/broken.ttl` shows error recovery.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
 

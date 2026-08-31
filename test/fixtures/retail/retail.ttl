@@ -1,0 +1,344 @@
+# ---------------------------------------------------------------------------
+# Retail / e-commerce ontology
+#
+# Models the core of an online marketplace: customers and the vendors they buy
+# from, the products vendors list, the SKUs those products come in, and the
+# orders that tie them together.
+#
+# Vendor-specific classes live in vendors.owl (RDF/XML) to exercise
+# cross-format navigation. Sample data lives in instances.ttl.
+# ---------------------------------------------------------------------------
+
+@prefix retail:  <http://example.org/retail#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://example.org/retail> a owl:Ontology ;
+    dcterms:title "Retail Commerce Ontology" ;
+    dcterms:description "Customers, vendors, products, SKUs, addresses and orders." ;
+    owl:versionInfo "1.0.0" .
+
+# --- Parties ---------------------------------------------------------------
+
+retail:Party a owl:Class ;
+    rdfs:label "Party"@en ;
+    rdfs:comment "Any entity that can participate in a transaction." .
+
+retail:Person a owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "An individual human being." ;
+    rdfs:subClassOf retail:Party ;
+    owl:disjointWith retail:Organization .
+
+retail:Organization a owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "A company or other incorporated body." ;
+    rdfs:subClassOf retail:Party .
+
+retail:Customer a owl:Class ;
+    rdfs:label "Customer"@en ;
+    rdfs:comment "A person who has registered an account and can place orders." ;
+    rdfs:subClassOf retail:Person ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty retail:hasAddress ;
+        owl:someValuesFrom retail:Address ] .
+
+# --- Addresses -------------------------------------------------------------
+
+retail:Address a owl:Class ;
+    rdfs:label "Address"@en ;
+    rdfs:comment "A postal address." .
+
+retail:BillingAddress a owl:Class ;
+    rdfs:label "Billing Address"@en ;
+    rdfs:comment "The address a payment method is registered to." ;
+    rdfs:subClassOf retail:Address .
+
+retail:ShippingAddress a owl:Class ;
+    rdfs:label "Shipping Address"@en ;
+    rdfs:comment "The address an order is delivered to." ;
+    rdfs:subClassOf retail:Address .
+
+# --- Catalogue -------------------------------------------------------------
+
+retail:Product a owl:Class ;
+    rdfs:label "Product"@en ;
+    rdfs:comment "Something offered for sale, independent of its variants." .
+
+retail:PhysicalProduct a owl:Class ;
+    rdfs:label "Physical Product"@en ;
+    rdfs:comment "A product that must be shipped." ;
+    rdfs:subClassOf retail:Product ;
+    owl:disjointWith retail:DigitalProduct .
+
+retail:DigitalProduct a owl:Class ;
+    rdfs:label "Digital Product"@en ;
+    rdfs:comment "A product delivered electronically." ;
+    rdfs:subClassOf retail:Product .
+
+retail:SKU a owl:Class ;
+    rdfs:label "SKU"@en ;
+    rdfs:comment "A stock keeping unit: one buyable variant of a product, such as a specific size and colour." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty retail:variantOf ;
+        owl:cardinality "1"^^xsd:nonNegativeInteger ] .
+
+retail:Category a owl:Class ;
+    rdfs:label "Category"@en ;
+    rdfs:comment "A node in the browsable catalogue hierarchy." .
+
+retail:InventoryItem a owl:Class ;
+    rdfs:label "Inventory Item"@en ;
+    rdfs:comment "The stock held for one SKU at one location." .
+
+# --- Ordering --------------------------------------------------------------
+
+retail:Order a owl:Class ;
+    rdfs:label "Order"@en ;
+    rdfs:comment "A confirmed purchase made by a customer." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+        owl:onProperty retail:hasOrderLine ;
+        owl:minCardinality "1"^^xsd:nonNegativeInteger ] .
+
+retail:OrderLine a owl:Class ;
+    rdfs:label "Order Line"@en ;
+    rdfs:comment "One SKU and quantity within an order." .
+
+retail:Shipment a owl:Class ;
+    rdfs:label "Shipment"@en ;
+    rdfs:comment "A parcel dispatched to fulfil part or all of an order." .
+
+retail:PaymentMethod a owl:Class ;
+    rdfs:label "Payment Method"@en ;
+    rdfs:comment "A means of payment registered by a customer." .
+
+retail:Review a owl:Class ;
+    rdfs:label "Review"@en ;
+    rdfs:comment "A customer's written rating of a product." .
+
+# --- Object properties -----------------------------------------------------
+
+retail:hasAddress a owl:ObjectProperty ;
+    rdfs:label "has address"@en ;
+    rdfs:domain retail:Party ;
+    rdfs:range retail:Address .
+
+retail:placedOrder a owl:ObjectProperty ;
+    rdfs:label "placed order"@en ;
+    rdfs:domain retail:Customer ;
+    rdfs:range retail:Order ;
+    owl:inverseOf retail:orderedBy .
+
+retail:orderedBy a owl:ObjectProperty ;
+    rdfs:label "ordered by"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range retail:Customer .
+
+retail:hasOrderLine a owl:ObjectProperty ;
+    rdfs:label "has order line"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range retail:OrderLine .
+
+retail:lineItem a owl:ObjectProperty ;
+    rdfs:label "line item"@en ;
+    rdfs:comment "The SKU this order line is for." ;
+    rdfs:domain retail:OrderLine ;
+    rdfs:range retail:SKU .
+
+retail:variantOf a owl:ObjectProperty ;
+    rdfs:label "variant of"@en ;
+    rdfs:comment "The product a SKU is a variant of." ;
+    rdfs:domain retail:SKU ;
+    rdfs:range retail:Product .
+
+retail:inCategory a owl:ObjectProperty ;
+    rdfs:label "in category"@en ;
+    rdfs:domain retail:Product ;
+    rdfs:range retail:Category .
+
+retail:broaderCategory a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:label "broader category"@en ;
+    rdfs:comment "The parent of this category in the catalogue tree." ;
+    rdfs:domain retail:Category ;
+    rdfs:range retail:Category .
+
+retail:stockOf a owl:ObjectProperty ;
+    rdfs:label "stock of"@en ;
+    rdfs:domain retail:InventoryItem ;
+    rdfs:range retail:SKU .
+
+retail:shippedTo a owl:ObjectProperty ;
+    rdfs:label "shipped to"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range retail:ShippingAddress .
+
+retail:billedTo a owl:ObjectProperty ;
+    rdfs:label "billed to"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range retail:BillingAddress .
+
+retail:paidWith a owl:ObjectProperty ;
+    rdfs:label "paid with"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range retail:PaymentMethod .
+
+retail:fulfilledBy a owl:ObjectProperty ;
+    rdfs:label "fulfilled by"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range retail:Shipment .
+
+retail:wroteReview a owl:ObjectProperty ;
+    rdfs:label "wrote review"@en ;
+    rdfs:domain retail:Customer ;
+    rdfs:range retail:Review .
+
+retail:reviewOf a owl:ObjectProperty ;
+    rdfs:label "review of"@en ;
+    rdfs:domain retail:Review ;
+    rdfs:range retail:Product .
+
+# --- Datatype properties ---------------------------------------------------
+
+retail:partyName a owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:domain retail:Party ;
+    rdfs:range xsd:string .
+
+retail:email a owl:DatatypeProperty ;
+    rdfs:label "email"@en ;
+    rdfs:domain retail:Party ;
+    rdfs:range xsd:string .
+
+retail:customerId a owl:DatatypeProperty ;
+    rdfs:label "customer id"@en ;
+    rdfs:domain retail:Customer ;
+    rdfs:range xsd:string .
+
+retail:loyaltyPoints a owl:DatatypeProperty ;
+    rdfs:label "loyalty points"@en ;
+    rdfs:domain retail:Customer ;
+    rdfs:range xsd:integer .
+
+retail:registeredOn a owl:DatatypeProperty ;
+    rdfs:label "registered on"@en ;
+    rdfs:domain retail:Customer ;
+    rdfs:range xsd:date .
+
+retail:street a owl:DatatypeProperty ;
+    rdfs:label "street"@en ;
+    rdfs:domain retail:Address ;
+    rdfs:range xsd:string .
+
+retail:city a owl:DatatypeProperty ;
+    rdfs:label "city"@en ;
+    rdfs:domain retail:Address ;
+    rdfs:range xsd:string .
+
+retail:postalCode a owl:DatatypeProperty ;
+    rdfs:label "postal code"@en ;
+    rdfs:domain retail:Address ;
+    rdfs:range xsd:string .
+
+retail:countryCode a owl:DatatypeProperty ;
+    rdfs:label "country code"@en ;
+    rdfs:comment "ISO 3166-1 alpha-2 country code." ;
+    rdfs:domain retail:Address ;
+    rdfs:range xsd:string .
+
+retail:title a owl:DatatypeProperty ;
+    rdfs:label "title"@en ;
+    rdfs:domain retail:Product ;
+    rdfs:range xsd:string .
+
+retail:description a owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:domain retail:Product ;
+    rdfs:range xsd:string .
+
+retail:skuCode a owl:DatatypeProperty ;
+    rdfs:label "sku code"@en ;
+    rdfs:domain retail:SKU ;
+    rdfs:range xsd:string .
+
+retail:barcode a owl:DatatypeProperty ;
+    rdfs:label "barcode"@en ;
+    rdfs:domain retail:SKU ;
+    rdfs:range xsd:string .
+
+retail:listPrice a owl:DatatypeProperty ;
+    rdfs:label "list price"@en ;
+    rdfs:domain retail:SKU ;
+    rdfs:range xsd:decimal .
+
+retail:currency a owl:DatatypeProperty ;
+    rdfs:label "currency"@en ;
+    rdfs:domain retail:SKU ;
+    rdfs:range xsd:string .
+
+retail:weightKg a owl:DatatypeProperty ;
+    rdfs:label "weight kg"@en ;
+    rdfs:domain retail:SKU ;
+    rdfs:range xsd:decimal .
+
+retail:quantityOnHand a owl:DatatypeProperty ;
+    rdfs:label "quantity on hand"@en ;
+    rdfs:domain retail:InventoryItem ;
+    rdfs:range xsd:integer .
+
+retail:orderNumber a owl:DatatypeProperty ;
+    rdfs:label "order number"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range xsd:string .
+
+retail:placedAt a owl:DatatypeProperty ;
+    rdfs:label "placed at"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range xsd:dateTime .
+
+retail:orderStatus a owl:DatatypeProperty ;
+    rdfs:label "status"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range xsd:string .
+
+retail:totalAmount a owl:DatatypeProperty ;
+    rdfs:label "total amount"@en ;
+    rdfs:domain retail:Order ;
+    rdfs:range xsd:decimal .
+
+retail:quantity a owl:DatatypeProperty ;
+    rdfs:label "quantity"@en ;
+    rdfs:domain retail:OrderLine ;
+    rdfs:range xsd:integer .
+
+retail:unitPrice a owl:DatatypeProperty ;
+    rdfs:label "unit price"@en ;
+    rdfs:domain retail:OrderLine ;
+    rdfs:range xsd:decimal .
+
+retail:trackingNumber a owl:DatatypeProperty ;
+    rdfs:label "tracking number"@en ;
+    rdfs:domain retail:Shipment ;
+    rdfs:range xsd:string .
+
+retail:carrier a owl:DatatypeProperty ;
+    rdfs:label "carrier"@en ;
+    rdfs:domain retail:Shipment ;
+    rdfs:range xsd:string .
+
+retail:categoryName a owl:DatatypeProperty ;
+    rdfs:label "category name"@en ;
+    rdfs:domain retail:Category ;
+    rdfs:range xsd:string .
+
+retail:ratingValue a owl:DatatypeProperty ;
+    rdfs:label "rating"@en ;
+    rdfs:comment "Star rating from 1 to 5." ;
+    rdfs:domain retail:Review ;
+    rdfs:range xsd:integer .
+
+retail:reviewBody a owl:DatatypeProperty ;
+    rdfs:label "review body"@en ;
+    rdfs:domain retail:Review ;
+    rdfs:range xsd:string .

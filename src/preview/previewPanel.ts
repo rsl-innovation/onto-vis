@@ -243,6 +243,7 @@ export class PreviewPanel {
 <body>
   <div id="toolbar" role="toolbar" aria-label="Graph controls"></div>
   <div id="banner" hidden></div>
+  <div id="legend" aria-label="Legend"></div>
   <div id="graph" role="application" aria-label="Ontology graph"></div>
   <div id="empty" hidden></div>
   <div id="details" hidden aria-live="polite"></div>
