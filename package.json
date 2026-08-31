@@ -319,6 +319,7 @@
   "dependencies": {
     "cytoscape": "^3.34.2",
     "cytoscape-dagre": "^4.0.0",
+    "cytoscape-elk": "^2.3.0",
     "cytoscape-fcose": "^2.2.0",
     "n3": "^2.6.0",
     "rdfxml-streaming-parser": "^3.3.0",

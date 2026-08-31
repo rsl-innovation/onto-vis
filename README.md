@@ -24,8 +24,9 @@ graph beside your file. It updates as you type.
 
 - **Ontology view** — every class is a UML-style card: a header band with the class
   name, then its datatype properties as aligned attribute rows with their types.
-  `rdfs:subClassOf` is drawn as a hollow-triangle generalisation and pulls each
-  family into a cluster, so the hierarchy reads first and the property web second.
+  Laid out with ELK's layered algorithm, so classes land in clean columns and
+  never overlap, with `rdfs:subClassOf` drawn as an orthogonal hollow-triangle
+  generalisation flowing left to right.
   `owl:Restriction` becomes an annotated edge (`hasParent only Person`) or an
   italic constraint row, rather than an anonymous blob.
 - **Triples view** — every subject, predicate and object, with literals and blank
@@ -117,4 +118,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE).
+
+The graph layout uses [elkjs](https://github.com/kieler/elkjs), which is
+EPL-2.0 licensed, so the packaged `.vsix` contains EPL-2.0 code alongside this
+project's MIT source. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for
+the full picture and for how to build without it.

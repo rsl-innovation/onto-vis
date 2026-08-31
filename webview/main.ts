@@ -1,10 +1,10 @@
 import cytoscape from 'cytoscape';
-import dagre from 'cytoscape-dagre';
 import fcose from 'cytoscape-fcose';
+import elk from 'cytoscape-elk';
 import { buildCard, type CardNode, type Theme } from './cards.js';
 
-cytoscape.use(dagre);
 cytoscape.use(fcose);
+cytoscape.use(elk as unknown as cytoscape.Ext);
 
 declare function acquireVsCodeApi(): {
   postMessage(message: unknown): void;
@@ -169,10 +169,12 @@ function cytoscapeStyle(t: Theme): cytoscape.StylesheetJson {
         'target-arrow-shape': 'triangle',
         'target-arrow-fill': 'hollow',
         'arrow-scale': 1.25,
+        // Orthogonal generalisation lines, as in UML. The direction follows the
+        // layered layout, which flows left to right.
         'curve-style': 'taxi',
-        'taxi-direction': 'upward',
-        'taxi-turn': 24,
-        'taxi-turn-min-distance': 12,
+        'taxi-direction': 'rightward',
+        'taxi-turn': 22,
+        'taxi-turn-min-distance': 10,
       },
     },
     {
@@ -321,104 +323,61 @@ function clearSelection(): void {
   detailsEl.hidden = true;
 }
 
-/**
- * Detects a cycle in the subclass graph.
- *
- * Relative-placement constraints must be satisfiable: a cyclic hierarchy (which
- * a malformed ontology can express) would make them contradictory and the layout
- * would fail outright rather than degrade.
- */
-function hierarchyHasCycle(core: cytoscape.Core): boolean {
-  const parents = new Map<string, string[]>();
-  core.edges('[kind = "subClassOf"]').forEach((e) => {
-    const list = parents.get(e.source().id());
-    if (list) list.push(e.target().id());
-    else parents.set(e.source().id(), [e.target().id()]);
-  });
-
-  const state = new Map<string, 1 | 2>();
-  const visit = (id: string): boolean => {
-    const seen = state.get(id);
-    if (seen === 1) return true;
-    if (seen === 2) return false;
-    state.set(id, 1);
-    for (const parent of parents.get(id) ?? []) {
-      if (visit(parent)) return true;
-    }
-    state.set(id, 2);
-    return false;
-  };
-  for (const id of parents.keys()) {
-    if (visit(id)) return true;
-  }
-  return false;
-}
+/** Above this, ELK's layered algorithm costs more than it returns. */
+const MAX_LAYERED_NODES = 300;
 
 /**
  * Lays the graph out.
  *
- * A real ontology is usually a shallow forest, not a deep tree: this one has
- * four small families and eleven classes with no superclass at all. Ranking
- * purely on generalisation therefore strings those roots out into one enormous
- * row, while ranking on every edge lets the property web drag related classes to
- * opposite corners.
+ * The ontology view uses ELK's layered (Sugiyama) algorithm, which is what makes
+ * this read as a diagram rather than a scatter: nodes land in clean columns,
+ * generalisation flows one way, and node sizes are respected so cards never
+ * collide. A force layout - fcose, d3-force, any of them - cannot do that; it
+ * optimises distances, not alignment, so the result always looks organic.
  *
- * So the ontology view uses a force layout with two asymmetries. Generalisation
- * gets a much shorter ideal length, which pulls each family into a tight cluster
- * that reads as a unit; and every subclass carries a constraint placing it below
- * its parent, so the hierarchy still reads top-down. Compact, and the tree is
- * still the thing you see first.
+ * Direction is left-to-right because the preview panel is wide: laying the
+ * hierarchy out horizontally fills the space instead of building a tall column
+ * that has to be zoomed out to fit.
+ *
+ * The triples view keeps a force layout, which is the right tool for a dense,
+ * non-hierarchical graph with no natural ranking.
  */
 function runLayout(core: cytoscape.Core, view: string): void {
-  const isOntology = view === 'ontology';
+  const layered = view === 'ontology' && core.nodes().length <= MAX_LAYERED_NODES;
 
-  const constraints =
-    isOntology && !hierarchyHasCycle(core)
-      ? core.edges('[kind = "subClassOf"]').map((e) => ({
-          top: e.target().id(),
-          bottom: e.source().id(),
-          gap: 110,
-        }))
-      : [];
+  const options = layered
+    ? ({
+        name: 'elk',
+        fit: false,
+        elk: {
+          algorithm: 'layered',
+          'elk.direction': 'RIGHT',
+          'elk.spacing.nodeNode': '32',
+          'elk.layered.spacing.nodeNodeBetweenLayers': '64',
+          'elk.separateConnectedComponents': 'true',
+          'elk.spacing.componentComponent': '50',
+          'elk.layered.thoroughness': '20',
+          'elk.layered.nodePlacement.strategy': 'BRANDES_KOEPF',
+        },
+      } as unknown as cytoscape.LayoutOptions)
+    : ({
+        name: 'fcose',
+        quality: 'proof',
+        animate: false,
+        randomize: true,
+        fit: false,
+        padding: 30,
+        nodeSeparation: 120,
+        nodeRepulsion: 11000,
+        idealEdgeLength: (edge: cytoscape.EdgeSingular) =>
+          edge.data('kind') === 'type' ? 90 : 170,
+      } as unknown as cytoscape.LayoutOptions);
 
-  const options = {
-    name: 'fcose',
-    quality: 'proof',
-    animate: false,
-    randomize: true,
-    fit: false,
-    padding: 30,
-    nodeSeparation: isOntology ? 140 : 120,
-    nodeRepulsion: isOntology ? 14000 : 11000,
-    idealEdgeLength: (edge: cytoscape.EdgeSingular) => {
-      const kind = edge.data('kind');
-      if (kind === 'subClassOf') return 95;
-      if (kind === 'disjoint' || kind === 'equivalent') return 130;
-      if (kind === 'type') return 90;
-      return 210;
-    },
-    edgeElasticity: (edge: cytoscape.EdgeSingular) =>
-      edge.data('kind') === 'subClassOf' ? 0.6 : 0.2,
-    relativePlacementConstraint: constraints.length > 0 ? constraints : undefined,
-  } as unknown as cytoscape.LayoutOptions;
-
-  const run = (opts: cytoscape.LayoutOptions) => {
-    const layout = core.layout(opts);
-    // The layout settles asynchronously; fitting before `layoutstop` measures
-    // positions that are still moving and crops the result.
-    layout.one('layoutstop', () => fitReadably(core));
-    layout.run();
-  };
-
-  try {
-    run(options);
-  } catch {
-    // Unsatisfiable constraints: lay out without them rather than not at all.
-    run({
-      ...(options as unknown as Record<string, unknown>),
-      relativePlacementConstraint: undefined,
-    } as unknown as cytoscape.LayoutOptions);
-  }
+  const layout = core.layout(options);
+  // Both layouts settle asynchronously; fitting before `layoutstop` measures
+  // positions that are still moving and crops the result.
+  layout.one('layoutstop', () => fitReadably(core));
+  layout.run();
 }
 
 /**

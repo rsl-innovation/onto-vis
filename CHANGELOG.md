@@ -25,4 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A worked retail/e-commerce example ontology under `test/fixtures/retail/`,
   spanning Turtle, RDF/XML and instance data.
 
+### Changed
+
+- The ontology view now uses ELK's layered layout instead of a force layout, so
+  classes are arranged in columns with no overlaps rather than scattered
+  organically. This adds `elkjs` (EPL-2.0) to the bundle; see
+  [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
 [Unreleased]: https://github.com/aradhya2211/turtle-syntax-extension/commits/main
