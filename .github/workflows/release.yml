@@ -62,13 +62,15 @@ jobs:
       - name: Package
         run: npx vsce package --out onto-vis.vsix
 
+      # Both CLIs read their token from the environment; passing it as an
+      # argument would expose it in process listings and command echo.
       - name: Publish to the VS Code Marketplace
         if: env.VSCE_PAT != ''
-        run: npx vsce publish --packagePath onto-vis.vsix --pat "$VSCE_PAT"
+        run: npx vsce publish --packagePath onto-vis.vsix
 
       - name: Publish to Open VSX
         if: env.OVSX_PAT != ''
-        run: npx ovsx publish onto-vis.vsix --pat "$OVSX_PAT"
+        run: npx ovsx publish onto-vis.vsix
 
       - name: Note skipped publishes
         if: env.VSCE_PAT == '' || env.OVSX_PAT == ''
