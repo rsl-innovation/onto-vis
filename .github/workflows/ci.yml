@@ -35,11 +35,11 @@ jobs:
         run: npm test
 
       - name: Package
-        run: npx vsce package --out turtle-syntax-extension.vsix
+        run: npx vsce package --out onto-vis.vsix
 
       - name: Upload VSIX
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: vsix
-          path: turtle-syntax-extension.vsix
+          name: onto-vis-vsix
+          path: onto-vis.vsix

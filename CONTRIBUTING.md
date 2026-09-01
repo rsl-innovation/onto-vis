@@ -5,8 +5,8 @@ Thanks for taking a look. Issues and pull requests are welcome.
 ## Getting set up
 
 ```bash
-git clone https://github.com/aradhya2211/turtle-syntax-extension.git
-cd turtle-syntax-extension
+git clone https://github.com/rsl-innovation/onto-vis.git
+cd onto-vis
 npm install
 npm run watch
 ```

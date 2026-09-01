@@ -1,21 +1,21 @@
 {
-  "name": "turtle-syntax-extension",
-  "displayName": "Turtle & RDF — Ontology Language Server + Graph Preview",
+  "name": "onto-vis",
+  "displayName": "OntoVis — Ontology Language Server & Graph Preview",
   "description": "Language server and live ontology graph previewer for Turtle, RDF/XML and OWL files.",
   "version": "0.1.0",
   "license": "MIT",
-  "publisher": "aradhya2211",
+  "publisher": "rsl-innovation",
   "author": {
-    "name": "aradhya2211"
+    "name": "rsl-innovation-labs"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/aradhya2211/turtle-syntax-extension.git"
+    "url": "https://github.com/rsl-innovation/onto-vis.git"
   },
   "bugs": {
-    "url": "https://github.com/aradhya2211/turtle-syntax-extension/issues"
+    "url": "https://github.com/rsl-innovation/onto-vis/issues"
   },
-  "homepage": "https://github.com/aradhya2211/turtle-syntax-extension#readme",
+  "homepage": "https://github.com/rsl-innovation/onto-vis#readme",
   "engines": {
     "vscode": "^1.91.0"
   },
@@ -314,7 +314,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vscode-test",
-    "package": "vsce package"
+    "package": "vsce package",
+    "publish:vsce": "vsce publish --packagePath onto-vis.vsix",
+    "publish:ovsx": "ovsx publish onto-vis.vsix"
   },
   "dependencies": {
     "cytoscape": "^3.34.2",
@@ -338,9 +340,15 @@
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.2",
+    "ovsx": "^1.1.1",
     "typescript": "^5.9.0",
     "vitest": "^4.1.11",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"
+  },
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1e2430",
+    "theme": "dark"
   }
 }

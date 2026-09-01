@@ -32,4 +32,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   organically. This adds `elkjs` (EPL-2.0) to the bundle; see
   [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
-[Unreleased]: https://github.com/aradhya2211/turtle-syntax-extension/commits/main
+[Unreleased]: https://github.com/rsl-innovation/onto-vis/commits/main
