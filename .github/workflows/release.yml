@@ -64,13 +64,19 @@ jobs:
 
       # Both CLIs read their token from the environment; passing it as an
       # argument would expose it in process listings and command echo.
+      #
+      # --skip-duplicate makes a re-run safe. Publishing to one registry can
+      # succeed while the other is still unconfigured, so the same version
+      # legitimately gets published twice: without this, adding the second
+      # token later and re-running would fail on the registry that already has
+      # it, rather than filling the gap.
       - name: Publish to the VS Code Marketplace
         if: env.VSCE_PAT != ''
-        run: npx vsce publish --packagePath onto-vis.vsix
+        run: npx vsce publish --packagePath onto-vis.vsix --skip-duplicate
 
       - name: Publish to Open VSX
         if: env.OVSX_PAT != ''
-        run: npx ovsx publish onto-vis.vsix
+        run: npx ovsx publish onto-vis.vsix --skip-duplicate
 
       - name: Note skipped publishes
         if: env.VSCE_PAT == '' || env.OVSX_PAT == ''
